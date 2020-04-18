@@ -74,7 +74,7 @@ namespace Multithreading_02
         {
             if (e.KeyCode == Keys.Enter && !myGame.IsPaused)
             {
-                myGame.CheckWord(TypeWordBox.Text);
+                myGame.SignalCheckWord(TypeWordBox.Text);
                 TypeWordBox.Text = string.Empty;
             }
         }

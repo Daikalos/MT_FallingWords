@@ -18,8 +18,8 @@ namespace Multithreading_02
         private string myWord;
         private int myMoveDistance;
 
-        public string WordToCheck { get => myWord; private set => myWord = value; }
-        public bool WordFound { get; set; }
+        public string Text { get => myWord; set => myWord = value; }
+        public string WordToCheck { get; set; }
 
         public Word(Game game, Panel panel, string word, int moveDistance)
         {
@@ -29,7 +29,7 @@ namespace Multithreading_02
             this.myMoveDistance = moveDistance;
 
             myUpdateWordPosDelay = 100.0f;
-            WordFound = false;
+            WordToCheck = string.Empty;
 
             StartThread();
         }
@@ -54,6 +54,7 @@ namespace Multithreading_02
             {
                 if (!myGame.IsPaused)
                 {
+                    myGame.CheckWord(this);
                     if ((float)timer.Elapsed.TotalMilliseconds >= myUpdateWordPosDelay)
                     {
                         myPanel.InvokeIfRequired(() =>

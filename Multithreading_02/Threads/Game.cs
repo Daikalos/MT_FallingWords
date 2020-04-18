@@ -15,8 +15,8 @@ namespace Multithreading_02
         private Panel myPanel;
         private float mySpawnWordDelay;
         private string[] myListOfWords;
+        private object myLock = new object();
 
-        public string WordToCheck { get; set; }
         public int Score { get; private set; }
 
         public bool IsPaused { get; set; }
@@ -30,7 +30,6 @@ namespace Multithreading_02
             myWords = new List<Word>();
 
             mySpawnWordDelay = 3000.0f;
-            WordToCheck = string.Empty;
 
             Score = 0;
 
@@ -70,18 +69,23 @@ namespace Multithreading_02
             myWords.Clear();
         }
 
-        public void CheckWord(string wordToCheck)
+        public void CheckWord(Word word)
         {
-            for (int i = myWords.Count - 1; i >= 0; i--)
+            lock (myLock)
             {
-                if (myWords[i].WordToCheck == wordToCheck)
+                if (word.Text == word.WordToCheck)
                 {
-                    Score += wordToCheck.Length;
+                    Score += word.Text.Length;
 
-                    myWords[i].IsRunning = false;
-                    myWords.RemoveAt(i);
+                    word.IsRunning = false;
+                    myWords.Remove(word);
                 }
             }
+        }
+
+        public void SignalCheckWord(string wordToCheck)
+        {
+            myWords.ForEach(w => w.WordToCheck = wordToCheck);
         }
     }
 }
