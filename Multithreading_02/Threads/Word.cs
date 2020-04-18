@@ -12,32 +12,24 @@ namespace Multithreading_02
 {
     class Word : ThreadObject
     {
+        private Game myGame;
         private Panel myPanel;
-        private Label myWordLabel;
+        private float myUpdateWordPosDelay;
+        private string myWord;
         private int myMoveDistance;
-        private float 
-            myUpdateLocationTimer,
-            myUpdateLocationDelay;
 
-        public Word(Panel panel, string word)
+        public string WordToCheck { get => myWord; private set => myWord = value; }
+        public bool WordFound { get; set; }
+
+        public Word(Game game, Panel panel, string word, int moveDistance)
         {
+            this.myGame = game;
             this.myPanel = panel;
+            this.myWord = word;
+            this.myMoveDistance = moveDistance;
 
-            myUpdateLocationTimer = 0.0f;
-            myUpdateLocationDelay = 100.0f;
-            myMoveDistance = 2;
-
-            myWordLabel = new Label();
-            myWordLabel.Text = word.ToUpper();
-            myWordLabel.ForeColor = Color.Black;
-            myWordLabel.Font = new Font("Arial", 12.0f, FontStyle.Bold);
-            myWordLabel.AutoSize = true;
-            myWordLabel.Location = new Point(StaticRandom.RandomNumber(0, myPanel.Width - myWordLabel.Width), -30);
-
-            myPanel.InvokeIfRequired(() =>
-            {
-                myPanel.Controls.Add(myWordLabel);
-            });
+            myUpdateWordPosDelay = 100.0f;
+            WordFound = false;
 
             StartThread();
         }
@@ -46,32 +38,41 @@ namespace Multithreading_02
         {
             Stopwatch timer = Stopwatch.StartNew();
 
+            Label wordLabel = new Label();
+            wordLabel.Text = myWord.ToUpper();
+            wordLabel.ForeColor = Color.Black;
+            wordLabel.Font = new Font("Arial", 12.0f, FontStyle.Bold);
+            wordLabel.AutoSize = true;
+            wordLabel.Location = new Point(StaticRandom.RandomNumber(0, myPanel.Width - wordLabel.Width), -wordLabel.Height);
+
+            myPanel.InvokeIfRequired(() =>
+            {
+                myPanel.Controls.Add(wordLabel);
+            });
+
             while (IsRunning)
             {
-                myUpdateLocationTimer = (float)timer.Elapsed.TotalMilliseconds;     
-
-                if (myUpdateLocationTimer >= myUpdateLocationDelay)
+                if (!myGame.IsPaused)
                 {
-                    myPanel.InvokeIfRequired(() =>
+                    if ((float)timer.Elapsed.TotalMilliseconds >= myUpdateWordPosDelay)
                     {
-                        myWordLabel.Location = new Point(myWordLabel.Location.X, myWordLabel.Location.Y + myMoveDistance);
+                        myPanel.InvokeIfRequired(() =>
+                        {
+                            wordLabel.Location = new Point(wordLabel.Location.X, wordLabel.Location.Y + myMoveDistance);
+                            if (wordLabel.Location.Y - myMoveDistance >= myPanel.Height)
+                            {
+                                MainForm.Form.Reset();
+                            }
+                        });
                         timer.Restart();
-                    });
+                    }
                 }
             }
-        }
 
-        public void CheckWord(string word)
-        {
-            if (myWordLabel.Text.ToLower() == word.ToLower())
+            myPanel.InvokeIfRequired(() =>
             {
-                IsRunning = false;
-            }
-        }
-
-        public void Dispose()
-        {
-            myPanel.Controls.Remove(myWordLabel);
+                myPanel.Controls.Remove(wordLabel);
+            });
         }
     }
 }

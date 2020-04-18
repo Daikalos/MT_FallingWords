@@ -16,6 +16,8 @@ namespace Multithreading_02
         private Game myGame;
 
         public static MainForm Form { get; private set; }
+        public Label TimeCounter { get => TimeLabel; set => TimeLabel = value; }
+        public Label Score { get => ScoreLabel; set => ScoreLabel = value; }
 
         public MainForm()
         {
@@ -26,41 +28,64 @@ namespace Multithreading_02
 
         private void StartButton_Click(object sender, EventArgs e)
         {
-            using (OpenFileDialog openTextFile = new OpenFileDialog())
+            if (myGame == null)
             {
-                openTextFile.Title = "Open Text File";
-                openTextFile.Filter = "TXT Files|*.txt";
-
-                if (openTextFile.ShowDialog() == DialogResult.OK)
+                using (OpenFileDialog openTextFile = new OpenFileDialog())
                 {
-                    if (openTextFile.CheckFileExists)
+                    openTextFile.Title = "Open Text File";
+                    openTextFile.Filter = "TXT Files|*.txt";
+
+                    if (openTextFile.ShowDialog() == DialogResult.OK)
                     {
-                        string[] listOfWords = File.ReadAllText(openTextFile.FileName).Split(' ');
-                        myGame = new Game(GamePanel, listOfWords);
-                    }  
+                        if (openTextFile.CheckFileExists)
+                        {
+                            string[] listOfWords = File.ReadAllText(openTextFile.FileName).Split(' ');
+                            myGame = new Game(GamePanel, listOfWords);
+
+                            StartButton.Enabled = false;
+                            StopButton.Enabled = true;
+                        }
+                    }
                 }
+            }
+            else
+            {
+                myGame.IsPaused = false;
+
+                StartButton.Enabled = false;
+                StopButton.Enabled = true;
             }
         }
 
         private void StopButton_Click(object sender, EventArgs e)
         {
-            
+            myGame.IsPaused = true;
+
+            StartButton.Enabled = true;
+            StopButton.Enabled = false;
         }
 
         private void ResetButton_Click(object sender, EventArgs e)
         {
-
+            Reset();
         }
 
         private void TypeWordBox_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Enter)
+            if (e.KeyCode == Keys.Enter && !myGame.IsPaused)
             {
                 myGame.CheckWord(TypeWordBox.Text);
-
-                ScoreLabel.Text = "Score: " + myGame.Score;
                 TypeWordBox.Text = string.Empty;
             }
+        }
+
+        public void Reset()
+        {
+            myGame.IsRunning = false;
+            myGame = null;
+
+            StartButton.Enabled = true;
+            StopButton.Enabled = false;
         }
     }
 }

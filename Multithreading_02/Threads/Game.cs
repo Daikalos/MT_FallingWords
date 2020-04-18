@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using System.Windows.Forms;
+using System.Threading;
 
 namespace Multithreading_02
 {
@@ -12,12 +13,14 @@ namespace Multithreading_02
     {
         private List<Word> myWords;
         private Panel myPanel;
-        private float
-            mySpawnWordTimer,
-            mySpawnWordDelay;
+        private float mySpawnWordDelay;
         private string[] myListOfWords;
 
+        public string WordToCheck { get; set; }
         public int Score { get; private set; }
+
+        public bool IsPaused { get; set; }
+        public bool IsGameOver { get; set; }
 
         public Game(Panel panel, string[] listOfWords)
         {
@@ -26,8 +29,9 @@ namespace Multithreading_02
 
             myWords = new List<Word>();
 
-            mySpawnWordTimer = 0.0f;
-            mySpawnWordDelay = 3500.0f;
+            mySpawnWordDelay = 3000.0f;
+            WordToCheck = string.Empty;
+
             Score = 0;
 
             StartThread();
@@ -35,28 +39,46 @@ namespace Multithreading_02
 
         public override void Update()
         {
-            Stopwatch timer = Stopwatch.StartNew();
+            Stopwatch spawnWordTimer = Stopwatch.StartNew();
+            Stopwatch totalTime = Stopwatch.StartNew();
 
             while (IsRunning)
             {
-                mySpawnWordTimer = (float)timer.Elapsed.TotalMilliseconds;
-
-                if (mySpawnWordTimer >= mySpawnWordDelay)
+                if (!IsPaused)
                 {
-                    myWords.Add(new Word(myPanel, myListOfWords[StaticRandom.RandomNumber(0, myListOfWords.Length - 1)]));
-                    timer.Restart();
+                    if ((float)spawnWordTimer.Elapsed.TotalMilliseconds >= mySpawnWordDelay)
+                    {
+                        myWords.Add(new Word(this, myPanel, myListOfWords[StaticRandom.RandomNumber(0, myListOfWords.Length)], 3));
+                        spawnWordTimer.Restart();
+                    }
+
+                    myPanel.InvokeIfRequired(() =>
+                    {
+                        MainForm.Form.TimeCounter.Text = "Time: " + ((int)totalTime.Elapsed.TotalSeconds).ToString();
+                        MainForm.Form.Score.Text = "Score: " + Score;
+                    });
                 }
             }
+
+            myPanel.InvokeIfRequired(() =>
+            {
+                MainForm.Form.TimeCounter.Text = "Time: 0";
+                MainForm.Form.Score.Text = "Score: 0";
+            });
+
+            myWords.ForEach(w => w.IsRunning = false);
+            myWords.Clear();
         }
 
-        public void CheckWord(string word)
+        public void CheckWord(string wordToCheck)
         {
             for (int i = myWords.Count - 1; i >= 0; i--)
             {
-                myWords[i].CheckWord(word);
-                if (!myWords[i].IsRunning)
+                if (myWords[i].WordToCheck == wordToCheck)
                 {
-                    myWords[i].Dispose();
+                    Score += wordToCheck.Length;
+
+                    myWords[i].IsRunning = false;
                     myWords.RemoveAt(i);
                 }
             }
