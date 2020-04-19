@@ -44,6 +44,7 @@ namespace Multithreading_02
 
                             StartButton.Enabled = false;
                             StopButton.Enabled = true;
+                            ResetButton.Enabled = true;
                         }
                     }
                 }
@@ -72,20 +73,31 @@ namespace Multithreading_02
 
         private void TypeWordBox_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Enter && !myGame.IsPaused)
+            if (e.KeyCode == Keys.Enter)
             {
-                myGame.SignalCheckWord(TypeWordBox.Text);
-                TypeWordBox.Text = string.Empty;
+                if (myGame != null)
+                {
+                    if (!myGame.IsPaused)
+                    {
+                        myGame.SignalCheckWord(TypeWordBox.Text);
+                        TypeWordBox.Text = string.Empty;
+                    }
+                }
+                e.SuppressKeyPress = true;
             }
         }
 
         public void Reset()
         {
-            myGame.IsRunning = false;
-            myGame = null;
+            if (myGame != null)
+            {
+                myGame.IsRunning = false;
+                myGame = null;
 
-            StartButton.Enabled = true;
-            StopButton.Enabled = false;
+                StartButton.Enabled = true;
+                StopButton.Enabled = false;
+                ResetButton.Enabled = false;
+            }
         }
     }
 }

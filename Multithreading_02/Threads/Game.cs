@@ -13,7 +13,11 @@ namespace Multithreading_02
     {
         private List<Word> myWords;
         private Panel myPanel;
-        private float mySpawnWordDelay;
+        private float 
+            mySpawnWordDelay,
+            mySpawnWordDelayMax,
+            myUpdateWordPosDelay,
+            myUpdateWordPosDelayMax;
         private string[] myListOfWords;
         private object myLock = new object();
 
@@ -30,6 +34,10 @@ namespace Multithreading_02
             myWords = new List<Word>();
 
             mySpawnWordDelay = 3000.0f;
+            mySpawnWordDelayMax = mySpawnWordDelay;
+
+            myUpdateWordPosDelay = 100.0f;
+            myUpdateWordPosDelayMax = myUpdateWordPosDelay;
 
             Score = 0;
 
@@ -47,7 +55,10 @@ namespace Multithreading_02
                 {
                     if ((float)spawnWordTimer.Elapsed.TotalMilliseconds >= mySpawnWordDelay)
                     {
-                        myWords.Add(new Word(this, myPanel, myListOfWords[StaticRandom.RandomNumber(0, myListOfWords.Length)], 3));
+                        myUpdateWordPosDelay = myUpdateWordPosDelayMax - ((int)totalTime.Elapsed.TotalSeconds / 2);
+                        mySpawnWordDelay = mySpawnWordDelayMax - ((int)totalTime.Elapsed.TotalSeconds / 4);
+
+                        myWords.Add(new Word(this, myPanel, myListOfWords[StaticRandom.RandomNumber(0, myListOfWords.Length)], myUpdateWordPosDelay, 3));
                         spawnWordTimer.Restart();
                     }
 

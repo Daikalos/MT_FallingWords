@@ -29,12 +29,12 @@
         private void InitializeComponent()
         {
             this.GamePanel = new System.Windows.Forms.Panel();
+            this.TimeLabel = new System.Windows.Forms.Label();
             this.ScoreLabel = new System.Windows.Forms.Label();
             this.StartButton = new System.Windows.Forms.Button();
             this.StopButton = new System.Windows.Forms.Button();
             this.ResetButton = new System.Windows.Forms.Button();
             this.TypeWordBox = new System.Windows.Forms.TextBox();
-            this.TimeLabel = new System.Windows.Forms.Label();
             this.GamePanel.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -48,6 +48,18 @@
             this.GamePanel.Name = "GamePanel";
             this.GamePanel.Size = new System.Drawing.Size(574, 590);
             this.GamePanel.TabIndex = 0;
+            // 
+            // TimeLabel
+            // 
+            this.TimeLabel.AutoSize = true;
+            this.TimeLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.TimeLabel.ForeColor = System.Drawing.SystemColors.WindowText;
+            this.TimeLabel.Location = new System.Drawing.Point(3, 6);
+            this.TimeLabel.Margin = new System.Windows.Forms.Padding(3);
+            this.TimeLabel.Name = "TimeLabel";
+            this.TimeLabel.Size = new System.Drawing.Size(64, 18);
+            this.TimeLabel.TabIndex = 1;
+            this.TimeLabel.Text = "Time: 0";
             // 
             // ScoreLabel
             // 
@@ -84,6 +96,7 @@
             // 
             // ResetButton
             // 
+            this.ResetButton.Enabled = false;
             this.ResetButton.Location = new System.Drawing.Point(496, 609);
             this.ResetButton.Name = "ResetButton";
             this.ResetButton.Size = new System.Drawing.Size(90, 30);
@@ -100,18 +113,6 @@
             this.TypeWordBox.Size = new System.Drawing.Size(285, 26);
             this.TypeWordBox.TabIndex = 3;
             this.TypeWordBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TypeWordBox_KeyDown);
-            // 
-            // TimeLabel
-            // 
-            this.TimeLabel.AutoSize = true;
-            this.TimeLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.TimeLabel.ForeColor = System.Drawing.SystemColors.WindowText;
-            this.TimeLabel.Location = new System.Drawing.Point(3, 6);
-            this.TimeLabel.Margin = new System.Windows.Forms.Padding(3);
-            this.TimeLabel.Name = "TimeLabel";
-            this.TimeLabel.Size = new System.Drawing.Size(64, 18);
-            this.TimeLabel.TabIndex = 1;
-            this.TimeLabel.Text = "Time: 0";
             // 
             // MainForm
             // 

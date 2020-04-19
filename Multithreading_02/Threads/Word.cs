@@ -21,14 +21,14 @@ namespace Multithreading_02
         public string Text { get => myWord; set => myWord = value; }
         public string WordToCheck { get; set; }
 
-        public Word(Game game, Panel panel, string word, int moveDistance)
+        public Word(Game game, Panel panel, string word, float updateMoveDelay, int moveDistance)
         {
             this.myGame = game;
             this.myPanel = panel;
             this.myWord = word;
+            this.myUpdateWordPosDelay = updateMoveDelay;
             this.myMoveDistance = moveDistance;
 
-            myUpdateWordPosDelay = 100.0f;
             WordToCheck = string.Empty;
 
             StartThread();
