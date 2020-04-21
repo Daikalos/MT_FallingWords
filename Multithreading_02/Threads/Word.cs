@@ -36,7 +36,7 @@ namespace Multithreading_02
 
         public override void Update()
         {
-            Stopwatch timer = Stopwatch.StartNew();
+            Stopwatch moveTimer = Stopwatch.StartNew();
 
             Label wordLabel = new Label();
             wordLabel.Text = myWord.ToUpper();
@@ -49,13 +49,18 @@ namespace Multithreading_02
             {
                 myPanel.Controls.Add(wordLabel);
             });
-
+            
             while (IsRunning)
             {
                 if (!myGame.IsPaused)
                 {
+                    if (!moveTimer.IsRunning)
+                    {
+                        moveTimer.Start();
+                    }
+
                     myGame.CheckWord(this);
-                    if ((float)timer.Elapsed.TotalMilliseconds >= myUpdateWordPosDelay)
+                    if ((float)moveTimer.Elapsed.TotalMilliseconds >= myUpdateWordPosDelay)
                     {
                         myPanel.InvokeIfRequired(() =>
                         {
@@ -65,10 +70,16 @@ namespace Multithreading_02
                                 MainForm.Form.Reset();
                             }
                         });
-                        timer.Restart();
+                        moveTimer.Restart();
                     }
                 }
+                else
+                {
+                    moveTimer.Stop();
+                }
             }
+
+            //When not running anymore, remove
 
             myPanel.InvokeIfRequired(() =>
             {

@@ -53,10 +53,19 @@ namespace Multithreading_02
             {
                 if (!IsPaused)
                 {
+                    if (!spawnWordTimer.IsRunning)
+                    {
+                        spawnWordTimer.Start();
+                    }
+                    if (!totalTime.IsRunning)
+                    {
+                        totalTime.Start();
+                    }
+
                     if ((float)spawnWordTimer.Elapsed.TotalMilliseconds >= mySpawnWordDelay)
                     {
-                        myUpdateWordPosDelay = myUpdateWordPosDelayMax - ((int)totalTime.Elapsed.TotalSeconds / 2);
-                        mySpawnWordDelay = mySpawnWordDelayMax - ((int)totalTime.Elapsed.TotalSeconds / 4);
+                        myUpdateWordPosDelay = myUpdateWordPosDelayMax - ((int)totalTime.Elapsed.TotalSeconds / 4);
+                        mySpawnWordDelay = mySpawnWordDelayMax - ((int)totalTime.Elapsed.TotalSeconds * 10);
 
                         myWords.Add(new Word(this, myPanel, myListOfWords[StaticRandom.RandomNumber(0, myListOfWords.Length)], myUpdateWordPosDelay, 3));
                         spawnWordTimer.Restart();
@@ -68,7 +77,14 @@ namespace Multithreading_02
                         MainForm.Form.Score.Text = "Score: " + Score;
                     });
                 }
+                else
+                {
+                    totalTime.Stop();
+                    spawnWordTimer.Stop();
+                }
             }
+
+            //When not running anymore, reset
 
             myPanel.InvokeIfRequired(() =>
             {
@@ -76,25 +92,36 @@ namespace Multithreading_02
                 MainForm.Form.Score.Text = "Score: 0";
             });
 
-            myWords.ForEach(w => w.IsRunning = false);
-            myWords.Clear();
-        }
-
-        public void CheckWord(Word word)
-        {
             lock (myLock)
             {
-                if (word.Text == word.WordToCheck)
-                {
-                    Score += word.Text.Length;
-
-                    word.IsRunning = false;
-                    myWords.Remove(word);
-                }
+                myWords.ForEach(w => w.IsRunning = false);
+                myWords.Clear();
             }
         }
 
-        public void SignalCheckWord(string wordToCheck)
+        /// <summary>
+        /// Each word checks the current inputed word and performs appropriate action
+        /// <para>Lock is used because myWords would change size at removal which could crash program when any active concurrent action is being performed on myWords at the same time a word is removed</para>
+        /// <para>Lock ensures that there is always an up-to-date version of myWords being handled</para>
+        /// </summary>
+        public void CheckWord(Word word)
+        {
+            if (word.Text.ToLower() == word.WordToCheck.ToLower())
+            {
+                word.IsRunning = false;
+
+                lock (myLock)
+                {
+                    Score += word.Text.Length;
+                    myWords.Remove(word);
+                }
+            }     
+        }
+
+        /// <summary>
+        /// Signal each to word to check the current inputed word
+        /// </summary>
+        public void SignalEachWord(string wordToCheck)
         {
             myWords.ForEach(w => w.WordToCheck = wordToCheck);
         }

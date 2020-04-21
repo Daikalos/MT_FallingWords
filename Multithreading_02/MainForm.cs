@@ -79,7 +79,7 @@ namespace Multithreading_02
                 {
                     if (!myGame.IsPaused)
                     {
-                        myGame.SignalCheckWord(TypeWordBox.Text);
+                        myGame.SignalEachWord(TypeWordBox.Text);
                         TypeWordBox.Text = string.Empty;
                     }
                 }
